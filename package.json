@@ -1,0 +1,15 @@
+{
+  "name": "dev-tinder",
+  "version": "1.0.0",
+  "description": "tinder for developers!",
+  "main": "index.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "nodemon src/app.js"
+  },
+  "author": "Nitish Kumar Sahu",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}
