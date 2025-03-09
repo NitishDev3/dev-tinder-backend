@@ -1,7 +1,8 @@
 const mongoose = require("mongoose");
 const validator = require("validator")
 const { Schema } = mongoose;
-
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 const userSchema = new Schema({
     firstName: {
@@ -23,8 +24,8 @@ const userSchema = new Schema({
         lowerCase: true,
         trim: true,
         unique: true,
-        validate(value){
-            if(!validator.isEmail(value)){
+        validate(value) {
+            if (!validator.isEmail(value)) {
                 throw new Error("Not a valid Email");
             }
         }
@@ -33,8 +34,8 @@ const userSchema = new Schema({
         type: String,
         required: true,
         trim: true,
-        validate(value){
-            if(!validator.isStrongPassword(value)){
+        validate(value) {
+            if (!validator.isStrongPassword(value)) {
                 throw new Error("Password is not strong");
             }
         }
@@ -48,20 +49,19 @@ const userSchema = new Schema({
     gender: {
         type: String,
         lowerCase: true,
-        enum: { values: ['male', 'female'], message: '{VALUE} is not supported, should be either male or female' },
+        enum: { values: ['male', 'female', 'others'], message: '{VALUE} is not supported, should be either male or female or others' },
     },
     photoUrl: {
         type: String,
         default: "https://www.cgg.gov.in/wp-content/uploads/2017/10/dummy-profile-pic-male1.jpg",
-        validate(value){
-            if(!validator.isURL(value)){
+        validate(value) {
+            if (!validator.isURL(value)) {
                 throw new Error("Not a valid Photo Url");
             }
         }
     },
     about: {
         type: String,
-        minLength: 30,
         maxLength: 250,
     },
     skills: {
@@ -72,6 +72,21 @@ const userSchema = new Schema({
         timestamps: true,
     }
 )
+
+userSchema.methods.generateToken = async function () {
+    const user = this;
+    const _id = user._id;
+
+    const token = await jwt.sign({ id: _id }, "DEV@Tinder.123", { expiresIn: "7d" })
+    return token;
+}
+
+userSchema.methods.passwordValidation = async function (userInputPassword) {
+    const user = this;
+    const hashedPassword = user.password;
+    const isPasswordValid = await bcrypt.compare(userInputPassword, hashedPassword);
+    return isPasswordValid;
+}
 
 const User = mongoose.model("User", userSchema);
 

@@ -13,7 +13,7 @@ const userAuth = async (req, res, next) => {
         if (!profile) {
             throw new Error("User not found")
         }
-        req.body = profile;
+        req.user = profile;
 
         next();
     } catch (error) {

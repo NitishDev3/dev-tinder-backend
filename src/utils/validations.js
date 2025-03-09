@@ -16,28 +16,31 @@ const signUpValidation = (req) => {
 }
 
 
-const updateProfileValidations = (req, res, next) => {
-    const data = req.body;
+const editProfileValidation = (req) => {
+    const inputData = req.body;
 
-    const ALLOWED_UPDATES = ['lastName', 'age', 'photoUrl', 'skills', 'gender', 'password', 'about'];
-    const isValidUpdates = Object.keys(data).every((k) => ALLOWED_UPDATES.includes(k));
+    const allowedEditFields = ['firstName', 'lastName', 'age', 'photoUrl', 'skills', 'gender', 'about'];
+    const isValidEdit = Object.keys(inputData).every((field) => allowedEditFields.includes(field));
 
-    if (!isValidUpdates) {
+    if (!isValidEdit) {
         throw new Error("Not valid updates");
     }
 
-    if (data.skills) {
-        const skills = [...new Set(data.skills)]
+    if( inputData.photoUrl && !validator.isURL(inputData.photoUrl)){
+        throw new Error("Photo URL is not valid");
+    }
+
+
+    if (inputData.skills) {
+        const skills = [...new Set(inputData.skills)]
         if (skills.length < 3 || skills.length > 10) {
             throw new Error("There should be 3 to 10 unique skills");
         } else {
-            data.skills = skills;
+            inputData.skills = skills;
         }
     }
 
-    req.body = data;
-
-    next()
+    return inputData;
 }
 
-module.exports = { signUpValidation, updateProfileValidations }
+module.exports = { signUpValidation, editProfileValidation }
