@@ -9,7 +9,7 @@ const userAuth = async (req, res, next) => {
             throw new Error("Invalid token!!");
         }
         const { id } = await jwt.verify(token, "DEV@Tinder.123");
-        const profile = await User.findById(id);
+        const profile = await User.findById(id).select("-password -__v -createdAt -updatedAt");
         if (!profile) {
             throw new Error("User not found")
         }
